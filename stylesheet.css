@@ -1,0 +1,80 @@
+body {
+    background-color: beige;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+#result {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+#cards {
+    font-size: 0px;
+    margin-bottom: 30px;
+}
+
+.card {
+    display: inline-block;
+    width: 172.75px;
+    height: 264px;
+    border: 5px solid transparent;
+    border-radius: 12px;
+    margin-right: 11.5px;
+}
+
+.card:last-child {
+    margin-right: 0px;
+}
+
+.card.selected {
+    border-color: #00a2e8;
+}
+
+.card img {
+    width: 172.75px;
+    height: 264px;
+}
+
+#statusBar {
+    font-size: 0px;
+}
+
+#statusBar div {
+    display: inline-block;
+    vertical-align: middle;
+    width: 320px;
+    font-size: 30px;
+}
+
+#dealDrawContainer {
+    text-align: center;
+}
+
+#dealDraw {
+    width: 140px;
+    font-size: 20px;
+    padding: 8px 0px;
+}
+
+#payout {
+    text-align: right;
+}
+
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+a:hover,
+a:focus {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+a:focus {
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
