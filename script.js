@@ -1,256 +1,251 @@
-var resultDisplay = document.getElementById("result");
-var cardDivs = document.querySelectorAll(".card");
-var creditsDisplay = document.getElementById("credits");
-var dealDrawButton = document.getElementById("dealDraw");
+let resultParagraph = document.getElementById(`resultParagraph`)
+let cardDivs = document.getElementsByClassName(`card`)
+let creditsParagraph = document.getElementById(`creditsParagraph`)
+let dealDrawButton = document.getElementById(`dealDrawButton`)
 
-var payout = {
-    "Royal flush": 800,
-    "Straight flush": 50,
-    "Four of a kind": 25,
-    "Full house": 9,
-    "Flush": 6,
-    "Straight": 4,
-    "Three of a kind": 3,
-    "Two pair": 2,
-    "Jacks or better": 1,
-    "Pair": 0,
-    "High card": 0
-};
-
-var cards = [];
-var hand = [];
-var credits = 100;
-var currentIndexInDeck = 0;
-
-createCards();
-dealDrawButton.addEventListener("click", dealDraw);
-
-for (var i = 0; i < cardDivs.length; i++) {
-    cardDivs[i].addEventListener("click", selectCard);
+let payouts = {
+  "Royal flush": 800,
+  "Straight flush": 50,
+  "Four of a kind": 25,
+  "Full house": 9,
+  "Flush": 6,
+  "Straight": 4,
+  "Three of a kind": 3,
+  "Two pair": 2,
+  "Jacks or better": 1,
+  "Pair": 0,
+  "High card": 0
 }
 
-function createCards() {
-    for (var rank = 2; rank <= 14; rank++) {
-        for (var suit = 0; suit <= 3; suit++) {
-            var card = {
-                rank: rank,
-                suit: suit
-            };
+let deck = []
+let hand = []
+let credits = 100
+let currentIndexInDeck = 0
 
-            cards.push(card);
-        }
+createDeck()
+dealDrawButton.addEventListener(`click`, dealDraw)
+
+for (let cardDiv of cardDivs) {
+  cardDiv.addEventListener(`click`, selectCard)
+}
+
+function createDeck() {
+  for (let rank = 2; rank <= 14; rank++) {
+    for (let suit = 0; suit <= 3; suit++) {
+      let card = {
+        rank: rank,
+        suit: suit
+      }
+
+      deck.push(card)
     }
+  }
 }
 
 function dealDraw() {
-    if (currentIndexInDeck == 0) {
-        shuffleCards();
-        clearSelected();
-        placeCards();
+  if (currentIndexInDeck == 0) {
+    credits--
+    creditsParagraph.innerHTML = `Credits: ${credits}`
 
-        credits--;
+    shuffleDeck()
+    clearSelected()
+    placeCards()
 
-        resultDisplay.innerHTML = "Click a card to hold";
-        creditsDisplay.innerHTML = "Credits: " + credits;
-        dealDrawButton.innerHTML = "Draw";
+    resultParagraph.innerHTML = `Click a card to hold`
+    dealDrawButton.innerHTML = `Draw`
+  }
+  else {
+    placeCards()
 
+    let result = getResult()
+    let creditsText = payouts[result] == 1 ? `credit` : `credits`
+    resultParagraph.innerHTML = `${result}: ${payouts[result]} ${creditsText}`
+
+    credits += payouts[result]
+    creditsParagraph.innerHTML = `Credits: ${credits}`
+
+    currentIndexInDeck = 0
+    dealDrawButton.innerHTML = `Deal`
+
+    if (credits == 0) {
+      dealDrawButton.disabled = true
     }
-    else {
-        placeCards();
-
-        var result = getResult();
-        credits += payout[result];
-        currentIndexInDeck = 0;
-
-        resultDisplay.innerHTML = result + ": " + payout[result] + " " + (payout[result] == 1 ? "credit" : "credits");
-        creditsDisplay.innerHTML = "Credits: " + credits;
-        dealDrawButton.innerHTML = "Deal";
-
-        if (credits == 0) {
-            dealDrawButton.disabled = true;
-        }
-    }
+  }
 }
 
 function selectCard() {
-    if (currentIndexInDeck > 0) {
-        this.classList.toggle("selected");
-    }
+  if (currentIndexInDeck > 0) {
+    this.classList.toggle(`selected`)
+  }
 }
 
-function shuffleCards() {
-    for (var i = 0; i < 500; i++) {
-        var r1 = Math.floor(Math.random() * cards.length);
-        var r2 = Math.floor(Math.random() * cards.length);
+function shuffleDeck() {
+  for (let i = 0; i < 500; i++) {
+    let randomNumber1 = Math.floor(Math.random() * deck.length)
+    let randomNumber2 = Math.floor(Math.random() * deck.length)
 
-        var temp = cards[r1];
-        cards[r1] = cards[r2];
-        cards[r2] = temp;
-    }
+    let temp = deck[randomNumber1]
+    deck[randomNumber1] = deck[randomNumber2]
+    deck[randomNumber2] = temp
+  }
 }
 
 function clearSelected() {
-    for (var i = 0; i < cardDivs.length; i++) {
-        cardDivs[i].classList.remove("selected");
-    }
+  for (let cardDiv of cardDivs) {
+    cardDiv.classList.remove(`selected`)
+  }
 }
 
 function placeCards() {
-    for (var i = 0; i < cardDivs.length; i++) {
-        if (!cardDivs[i].classList.contains("selected")) {
-            var card = cards[currentIndexInDeck];
+  for (let i = 0; i < cardDivs.length; i++) {
+    if (!cardDivs[i].classList.contains(`selected`)) {
+      let card = deck[currentIndexInDeck]
+      let cardRank = getCardRank(card.rank)
+      let cardSuit = getCardSuit(card.suit)
 
-            var cardImage = document.createElement("img");
-            var cardImageName = getCardImageRank(card.rank) + getCardImageSuit(card.suit);
-            cardImage.setAttribute("src", "cards/" + cardImageName + ".png");
+      let image = document.createElement(`img`)
+      image.src = `cards/${cardRank}${cardSuit}.png`
+      cardDivs[i].innerHTML = ``
+      cardDivs[i].appendChild(image)
 
-            cardDivs[i].innerHTML = "";
-            cardDivs[i].appendChild(cardImage);
-
-            hand[i] = card;
-            currentIndexInDeck++;
-        }
+      hand[i] = card
+      currentIndexInDeck++
     }
+  }
 }
 
-function getCardImageRank(rank) {
-    var ranks = {
-        11: "J",
-        12: "Q",
-        13: "K",
-        14: "A"
-    };
+function getCardRank(rank) {
+  let ranks = {
+    11: `J`,
+    12: `Q`,
+    13: `K`,
+    14: `A`
+  }
 
-    return ranks[rank] ? ranks[rank] : rank;
+  return ranks[rank] ? ranks[rank] : rank
 }
 
-function getCardImageSuit(suit) {
-    var suits = ["C", "D", "H", "S"];
+function getCardSuit(suit) {
+  let suits = [`C`, `D`, `H`, `S`]
 
-    return suits[suit];
+  return suits[suit]
 }
 
 function getResult() {
-    var ranks = getRanksDict();
-    var suits = getSuitsDict();
+  let ranks = getRanksDict()
+  let suits = getSuitsDict()
 
-    var numPairs = getNumOfAKind(ranks, 2);
-    var numThreeOfAKind = getNumOfAKind(ranks, 3);
-    var numFourOfAKind = getNumOfAKind(ranks, 4);
-    var straight = isStraight(ranks);
-    var flush = isFlush(suits);
+  let numPairs = getNumOfAKind(ranks, 2)
+  let numThreeOfAKind = getNumOfAKind(ranks, 3)
+  let numFourOfAKind = getNumOfAKind(ranks, 4)
+  let straight = isStraight(ranks)
+  let flush = isFlush(suits)
 
-    if (flush && straight) {
-        return isRoyal(ranks) ? "Royal flush" : "Straight flush";
-    }
-    if (numFourOfAKind == 1) {
-        return "Four of a kind";
-    }
-    else if (numThreeOfAKind == 1 && numPairs == 1) {
-        return "Full house";
-    }
-    else if (flush) {
-        return "Flush";
-    }
-    else if (straight) {
-        return "Straight";
-    }
-    else if (numThreeOfAKind == 1) {
-        return "Three of a kind";
-    }
-    else if (numPairs == 2) {
-        return "Two pair";
-    }
-    else if (numPairs == 1) {
-        return isJacksOrBetter(ranks) ? "Jacks or better" : "Pair";
-    }
-    else {
-        return "High card";
-    }
+  if (flush && straight) {
+    return isRoyal(ranks) ? `Royal flush` : `Straight flush`
+  }
+  if (numFourOfAKind == 1) {
+    return `Four of a kind`
+  }
+  else if (numThreeOfAKind == 1 && numPairs == 1) {
+    return `Full house`
+  }
+  else if (flush) {
+    return `Flush`
+  }
+  else if (straight) {
+    return `Straight`
+  }
+  else if (numThreeOfAKind == 1) {
+    return `Three of a kind`
+  }
+  else if (numPairs == 2) {
+    return `Two pair`
+  }
+  else if (numPairs == 1) {
+    return isJacksOrBetter(ranks) ? `Jacks or better` : `Pair`
+  }
+  else {
+    return `High card`
+  }
 }
 
 function getNumOfAKind(ranks, num) {
-    var numOfAKind = 0;
+  let numOfAKind = 0
 
-    for (var rank in ranks) {
-        if (ranks[rank] == num) {
-            numOfAKind++;
-        }
+  for (let rank in ranks) {
+    if (ranks[rank] == num) {
+      numOfAKind++
     }
+  }
 
-    return numOfAKind;
+  return numOfAKind
 }
 
 function isStraight(ranks) {
-    var lowestRank = null;
+  let lowestRank = null
 
-    for (var rank in ranks) {
-        rank = parseInt(rank, 10);
+  for (let rank in ranks) {
+    rank = Number(rank)
 
-        if (lowestRank == null || rank < lowestRank) {
-            lowestRank = rank;
-        }
+    if (lowestRank == null || rank < lowestRank) {
+      lowestRank = rank
     }
+  }
 
-    if (ranks[lowestRank + 1] && ranks[lowestRank + 2] && ranks[lowestRank + 3] && ranks[lowestRank + 4]) {
-        return true;
-    }
-    else if (ranks[14] && ranks[2] && ranks[3] && ranks[4] && ranks[5]) {
-        return true;
-    }
-    else {
-        return false;
-    }
+  if (ranks[lowestRank + 1] && ranks[lowestRank + 2] && ranks[lowestRank + 3] && ranks[lowestRank + 4]) {
+    return true
+  }
+  else if (ranks[14] && ranks[2] && ranks[3] && ranks[4] && ranks[5]) {
+    return true
+  }
+  else {
+    return false
+  }
 }
 
 function isFlush(suits) {
-    for (var suit in suits) {
-        if (suits[suit] == 5) {
-            return true;
-        }
+  for (let suit in suits) {
+    if (suits[suit] == 5) {
+      return true
     }
+  }
 
-    return false;
+  return false
 }
 
 function isJacksOrBetter(ranks) {
-    return ranks[11] == 2 || ranks[12] == 2 || ranks[13] == 2 || ranks[14] == 2;
+  return ranks[11] == 2 || ranks[12] == 2 || ranks[13] == 2 || ranks[14] == 2
 }
 
 function isRoyal(ranks) {
-    return ranks[10] && ranks[11] && ranks[12] && ranks[13] && ranks[14];
+  return ranks[10] && ranks[11] && ranks[12] && ranks[13] && ranks[14]
 }
 
 function getRanksDict() {
-    var ranks = {};
+  let ranks = {}
 
-    for (var i = 0; i < hand.length; i++) {
-        var rank = hand[i].rank;
-
-        if (ranks[rank]) {
-            ranks[rank]++;
-        }
-        else {
-            ranks[rank] = 1;
-        }
+  for (let card of hand) {
+    if (!ranks[card.rank]) {
+      ranks[card.rank] = 0
     }
 
-    return ranks;
+    ranks[card.rank]++
+  }
+
+  return ranks
 }
 
 function getSuitsDict() {
-    var suits = {};
+  let suits = {}
 
-    for (var i = 0; i < hand.length; i++) {
-        var suit = hand[i].suit;
-
-        if (suits[suit]) {
-            suits[suit]++;
-        }
-        else {
-            suits[suit] = 1;
-        }
+  for (let card of hand) {
+    if (!suits[card.suit]) {
+      suits[card.suit] = 0
     }
 
-    return suits;
+    suits[card.suit]++
+  }
+
+  return suits
 }
