@@ -8,13 +8,13 @@ let payouts = {
   "Straight flush": 50,
   "Four of a kind": 25,
   "Full house": 9,
-  "Flush": 6,
-  "Straight": 4,
+  Flush: 6,
+  Straight: 4,
   "Three of a kind": 3,
   "Two pair": 2,
   "Jacks or better": 1,
-  "Pair": 0,
-  "High card": 0
+  Pair: 0,
+  "High card": 0,
 }
 
 let deck = []
@@ -34,7 +34,7 @@ function createDeck() {
     for (let suit = 0; suit <= 3; suit++) {
       let card = {
         rank: rank,
-        suit: suit
+        suit: suit,
       }
 
       deck.push(card)
@@ -53,8 +53,7 @@ function dealDraw() {
 
     resultParagraph.innerHTML = `Click a card to hold`
     dealDrawButton.innerHTML = `Draw`
-  }
-  else {
+  } else {
     placeCards()
 
     let result = getResult()
@@ -119,7 +118,7 @@ function getCardRank(rank) {
     11: `J`,
     12: `Q`,
     13: `K`,
-    14: `A`
+    14: `A`,
   }
 
   return ranks[rank] ? ranks[rank] : rank
@@ -146,26 +145,19 @@ function getResult() {
   }
   if (numFourOfAKind == 1) {
     return `Four of a kind`
-  }
-  else if (numThreeOfAKind == 1 && numPairs == 1) {
+  } else if (numThreeOfAKind == 1 && numPairs == 1) {
     return `Full house`
-  }
-  else if (flush) {
+  } else if (flush) {
     return `Flush`
-  }
-  else if (straight) {
+  } else if (straight) {
     return `Straight`
-  }
-  else if (numThreeOfAKind == 1) {
+  } else if (numThreeOfAKind == 1) {
     return `Three of a kind`
-  }
-  else if (numPairs == 2) {
+  } else if (numPairs == 2) {
     return `Two pair`
-  }
-  else if (numPairs == 1) {
+  } else if (numPairs == 1) {
     return isJacksOrBetter(ranks) ? `Jacks or better` : `Pair`
-  }
-  else {
+  } else {
     return `High card`
   }
 }
@@ -193,13 +185,16 @@ function isStraight(ranks) {
     }
   }
 
-  if (ranks[lowestRank + 1] && ranks[lowestRank + 2] && ranks[lowestRank + 3] && ranks[lowestRank + 4]) {
+  if (
+    ranks[lowestRank + 1] &&
+    ranks[lowestRank + 2] &&
+    ranks[lowestRank + 3] &&
+    ranks[lowestRank + 4]
+  ) {
     return true
-  }
-  else if (ranks[14] && ranks[2] && ranks[3] && ranks[4] && ranks[5]) {
+  } else if (ranks[14] && ranks[2] && ranks[3] && ranks[4] && ranks[5]) {
     return true
-  }
-  else {
+  } else {
     return false
   }
 }
